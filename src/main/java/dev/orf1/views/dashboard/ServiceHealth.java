@@ -15,7 +15,7 @@ public class ServiceHealth {
 
     private String theme;
 
-    enum Status {
+    public enum Status {
         EXCELLENT, OK, FAILING;
     }
 

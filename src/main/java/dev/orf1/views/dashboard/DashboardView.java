@@ -22,6 +22,7 @@ import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
+import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.vaadin.flow.theme.lumo.LumoUtility.BoxSizing;
 import com.vaadin.flow.theme.lumo.LumoUtility.FontSize;
 import com.vaadin.flow.theme.lumo.LumoUtility.FontWeight;
@@ -42,8 +43,8 @@ public class DashboardView extends Main {
         addClassName("dashboard-view");
 
         Board board = new Board();
-        board.addRow(createHighlight("Current users", "745", 33.7), createHighlight("View events", "54.6k", -112.45),
-                createHighlight("Conversion rate", "18%", 3.9), createHighlight("Custom metric", "-123.45", 0.0));
+        board.addRow(createHighlight("Normal", "745", 33.7), createHighlight("Anomalies", "54", -112.45),
+                createHighlight("Growth", "18%", 3.9), createHighlight("Custom metric", "123", 0.0));
         board.addRow(createViewEvents());
         board.addRow(createServiceHealth(), createResponseTimes());
         add(board);
@@ -90,7 +91,7 @@ public class DashboardView extends Main {
         year.setValue("2021");
         year.setWidth("100px");
 
-        HorizontalLayout header = createHeader("View events", "City/month");
+        HorizontalLayout header = createHeader("Events", "Vehicle/month");
         header.add(year);
 
         // Chart
@@ -109,10 +110,10 @@ public class DashboardView extends Main {
         plotOptions.setMarker(new Marker(false));
         conf.addPlotOptions(plotOptions);
 
-        conf.addSeries(new ListSeries("Berlin", 189, 191, 291, 396, 501, 403, 609, 712, 729, 942, 1044, 1247));
-        conf.addSeries(new ListSeries("London", 138, 246, 248, 348, 352, 353, 463, 573, 778, 779, 885, 887));
-        conf.addSeries(new ListSeries("New York", 65, 65, 166, 171, 293, 302, 308, 317, 427, 429, 535, 636));
-        conf.addSeries(new ListSeries("Tokyo", 0, 11, 17, 123, 130, 142, 248, 349, 452, 454, 458, 462));
+        conf.addSeries(new ListSeries("UAV A", 189, 191, 291, 396, 501, 403, 609, 712, 729, 942, 1044, 1247));
+        conf.addSeries(new ListSeries("UAV B", 138, 246, 248, 348, 352, 353, 463, 573, 778, 779, 885, 887));
+        conf.addSeries(new ListSeries("UAV C", 65, 65, 166, 171, 293, 302, 308, 317, 427, 429, 535, 636));
+        conf.addSeries(new ListSeries("UAV D", 0, 11, 17, 123, 130, 142, 248, 349, 452, 454, 458, 462));
 
         // Add it all together
         VerticalLayout viewEvents = new VerticalLayout(header, chart);
@@ -125,10 +126,10 @@ public class DashboardView extends Main {
 
     private Component createServiceHealth() {
         // Header
-        HorizontalLayout header = createHeader("Service health", "Input / output");
+        HorizontalLayout header = createHeader("System Health", "Active");
 
         // Grid
-        Grid<ServiceHealth> grid = new Grid();
+        Grid<ServiceHealth> grid = new Grid<>();
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         grid.setAllRowsVisible(true);
 
@@ -140,18 +141,18 @@ public class DashboardView extends Main {
             status.getElement().getThemeList().add(getStatusTheme(serviceHealth));
             return status;
         })).setHeader("").setFlexGrow(0).setAutoWidth(true);
-        grid.addColumn(ServiceHealth::getCity).setHeader("City").setFlexGrow(1);
-        grid.addColumn(ServiceHealth::getInput).setHeader("Input").setAutoWidth(true).setTextAlign(ColumnTextAlign.END);
-        grid.addColumn(ServiceHealth::getOutput).setHeader("Output").setAutoWidth(true)
+        grid.addColumn(ServiceHealth::getCity).setHeader("Vehicle").setFlexGrow(1);
+        grid.addColumn(ServiceHealth::getInput).setHeader("Scanned").setAutoWidth(true).setTextAlign(ColumnTextAlign.END);
+        grid.addColumn(ServiceHealth::getOutput).setHeader("Remaining").setAutoWidth(true)
                 .setTextAlign(ColumnTextAlign.END);
 
-        grid.setItems(new ServiceHealth(Status.EXCELLENT, "Münster", 324, 1540),
-                new ServiceHealth(Status.OK, "Cluj-Napoca", 311, 1320),
-                new ServiceHealth(Status.FAILING, "Ciudad Victoria", 300, 1219));
+        grid.setItems(new ServiceHealth(ServiceHealth.Status.EXCELLENT, "UAV A (Active)", 324, 1540),
+                new ServiceHealth(ServiceHealth.Status.OK, "UAV B (Active)", 311, 1320),
+                new ServiceHealth(ServiceHealth.Status.FAILING, "UAV C (Charging)", 0, 0));
 
         // Add it all together
         VerticalLayout serviceHealth = new VerticalLayout(header, grid);
-        serviceHealth.addClassName(Padding.LARGE);
+        serviceHealth.addClassName(LumoUtility.Padding.LARGE);
         serviceHealth.setPadding(false);
         serviceHealth.setSpacing(false);
         serviceHealth.getElement().getThemeList().add("spacing-l");
@@ -159,7 +160,7 @@ public class DashboardView extends Main {
     }
 
     private Component createResponseTimes() {
-        HorizontalLayout header = createHeader("Response times", "Average across all systems");
+        HorizontalLayout header = createHeader("Data", "Average across all systems");
 
         // Chart
         Chart chart = new Chart(ChartType.PIE);
@@ -168,17 +169,18 @@ public class DashboardView extends Main {
         chart.setThemeName("gradient");
 
         DataSeries series = new DataSeries();
-        series.add(new DataSeriesItem("System 1", 12.5));
-        series.add(new DataSeriesItem("System 2", 12.5));
-        series.add(new DataSeriesItem("System 3", 12.5));
-        series.add(new DataSeriesItem("System 4", 12.5));
-        series.add(new DataSeriesItem("System 5", 12.5));
-        series.add(new DataSeriesItem("System 6", 12.5));
+        series.add(new DataSeriesItem("NDVI (Plant Health)", 0.75));
+        series.add(new DataSeriesItem("Soil Moisture (%)", 45.3));
+        series.add(new DataSeriesItem("Crop Height (cm)", 150.0));
+        series.add(new DataSeriesItem("Canopy Cover (%)", 80.2));
+        series.add(new DataSeriesItem("Thermal Imaging (°C)", 28.5));
+        series.add(new DataSeriesItem("Weed Density (count/m²)", 12));
+
         conf.addSeries(series);
 
         // Add it all together
         VerticalLayout serviceHealth = new VerticalLayout(header, chart);
-        serviceHealth.addClassName(Padding.LARGE);
+        serviceHealth.addClassName(LumoUtility.Padding.LARGE);
         serviceHealth.setPadding(false);
         serviceHealth.setSpacing(false);
         serviceHealth.getElement().getThemeList().add("spacing-l");
